@@ -1,0 +1,13 @@
+{
+  "name": "disposable-pool",
+  "version": "1.0.0",
+  "description": "Easy-to-use pool of any disposable clients",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["disposable", "easy", "pool"],
+  "author": "Serhii Lynnyk <serhii.lynnyk@gmail.com>",
+  "repository": "github:s-lyn/disposable-pool",
+  "license": "ISC"
+}
