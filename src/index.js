@@ -4,7 +4,13 @@ class DisposablePool extends EventEmitter {
   constructor (options = {}) {
     super()
     const optionsKeys = Object.keys(options)
-    const allowedOptions = ['create', 'max', 'idleTimeoutMillis', 'onRemove']
+    const allowedOptions = [
+      'create',
+      'max',
+      'idleTimeoutMillis',
+      'onRemove',
+      'getTimeoutMillis'
+    ]
     for (const optionKey of optionsKeys) {
       if (!allowedOptions.includes(optionKey)) {
         throw new Error(`Option "${optionKey}" is not allowed`)
@@ -34,6 +40,9 @@ class DisposablePool extends EventEmitter {
       ? 0
       : parseInt(options.idleTimeoutMillis, 10)
     this.idleTimeoutMillis = idleTimeoutMillis
+    // Get timeout
+    const getTimeoutMillis = parseInt(options.getTimeoutMillis, 10)
+    this.getTimeoutMillis = getTimeoutMillis > 0 ? getTimeoutMillis : 30000
     this._pool = []
     this._waiters = []
     this.destroyed = false
@@ -45,10 +54,11 @@ class DisposablePool extends EventEmitter {
     return this._pool.length
   }
 
-  get () {
+  get ({ timeout } = {}) {
+    const d = parseInt(timeout, 10) || this.getTimeoutMillis
     const promise = new Promise((resolve, reject) => {
       this._waiters.push({
-        time: Date.now(),
+        dateTimeoutAt: Date.now() + d,
         resolve,
         reject
       })
@@ -70,6 +80,17 @@ class DisposablePool extends EventEmitter {
 
   _tick () {
     if (this.destroyed) return
+    // Clear old waiters
+    const newWairers = []
+    const now = Date.now()
+    for (const waiter of this._waiters) {
+      if (waiter.dateTimeoutAt > now) {
+        newWairers.push(waiter)
+      } else {
+        waiter.resolve()
+      }
+    }
+    this._waiters = newWairers
     // Fill the pool if isn't full
     const poolSize = this._pool.length
     const max = this.max

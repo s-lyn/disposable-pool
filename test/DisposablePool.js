@@ -163,4 +163,31 @@ describe('DisposablePool', function () {
     assert(onErrorSpy.calledWith('Create error'))
     assert(onErrorSpy.calledWith('Remove error'))
   })
+  it('should support #get option "timeout"', async function () {
+    let id = 0
+    const createStub = sinon.stub().callsFake(async () => {
+      return { id: ++id }
+    })
+    pool = new DisposablePool({
+      create: createStub
+    })
+    assert.deepStrictEqual(await pool.get({ timeout: 1 }), undefined)
+    assert.deepStrictEqual(await pool.get(), { id: 1 })
+    assert.deepStrictEqual(await pool.get(), { id: 2 })
+    assert.deepStrictEqual(await pool.get({ timeout: 1 }), undefined)
+  })
+  it('should support option "getTimeoutMillis"', async function () {
+    let id = 0
+    const createStub = sinon.stub().callsFake(async () => {
+      await new Promise(resolve => setTimeout(resolve, 25))
+      return { id: ++id }
+    })
+    pool = new DisposablePool({
+      create: createStub,
+      getTimeoutMillis: 20
+    })
+    assert.deepStrictEqual(await pool.get(), undefined)
+    await new Promise(resolve => setTimeout(resolve, 25))
+    assert.deepStrictEqual(await pool.get(), { id: 1 })
+  })
 })

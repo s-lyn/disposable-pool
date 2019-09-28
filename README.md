@@ -52,15 +52,18 @@ main().catch(console.error)
 | onRemove | {Function} | Sync or async function on remove client. Will be executed  only after idle timeout or destroy. Acquired client leave the pool forever and do not execute `onRemove` |
 | max | {Number} | Max size of pool. Default: 1 |
 | idleTimeoutMillis | {Number} | The minimum amount of time that an object may sit idle in the pool before it is eligible for eviction due to idle timeout. Default: 0 |
+| getTimeoutMillis | {Number} | The minimun amount of time that #get() method will wait for the ready client. Default: 30000 |
 
 
 ### Methods and params
 
-#### #get()
+#### #get(*{timeout}*)
 
 Get client from pool. If no any client in the pool it will wait for.
 
-This method do not recieve any options.
+| Param | Type | Description |
+|-------|------|-------------|
+| timeout | {Number} | Get timeout in milliseconds. If this time has elapsed, then `#get()` returns `undefined` |
 
 Returns: `Promise<client>`
 
