@@ -29,7 +29,8 @@ const pool = new DisposablePool({
     console.log('Removed client:', client)
   },
   max: 3,
-  idleTimeoutMillis: 60000
+  idleTimeoutMillis: 60000,
+  getTimeoutMillis: 15000
 })
 pool.on('error', err => {
   // Handle errors
