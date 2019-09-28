@@ -148,7 +148,7 @@ class DisposablePool extends EventEmitter {
     }
     // Repeat recursively
     if (!this.destroyed) {
-      setTimeout(() => this._tick(), 5)
+      setTimeout(() => this._tick(), 5).unref()
     }
   }
 }
